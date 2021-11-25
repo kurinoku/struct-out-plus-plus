@@ -8,6 +8,6 @@
 @defmodule[struct-plus-plus/struct-out]
 
 @defform[(struct-out++ id)]{
-  Like @racket[struct-out], but also exports @racket[id]++ and tries to export dotted accessors.
+  Like @racket[struct-out], but also exports @racket[id]++ and tries to export its dotted accessors and functional setters.
        }
 
