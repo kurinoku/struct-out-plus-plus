@@ -11,11 +11,15 @@
 (provide struct-out++
          provide-struct++)
 
-(define-for-syntax (get-dotted-accessors s)
+(define-for-syntax ((make-f fmt) s)
   (for*/list ([field (in-list (struct-field-info-list (syntax-local-value s)))]
-              [dotted-acc (in-value (format-id #:source s s "~a.~a" s field))]
-              #:when (identifier-binding dotted-acc))
-    dotted-acc))
+              [f (in-value (format-id #:source s s fmt s field))]
+              #:when (identifier-binding f))
+    f))
+
+(define-for-syntax get-dotted-accessors (make-f "~a.~a"))
+(define-for-syntax get-updaters (make-f "update-~a-~a"))
+(define-for-syntax get-setters (make-f "set-~a-~a"))
      
 
 (define-syntax struct-out++
@@ -24,11 +28,15 @@
      (syntax-parse stx
        [(_ s:id)
         #:with (dotted ...) (get-dotted-accessors #'s)
+        #:with (setters ...) (get-setters #'s)
+        #:with (updaters ...) (get-updaters #'s)
         #:with s++ (format-id #:source #'s #'s "~a++" #'s)
         (expand-export
          #'(combine-out (struct-out s)
                         s++
-                        dotted ...)
+                        dotted ...
+                        setters ...
+                        updaters ...)
          modes)]))))
 
 (define-syntax (provide-struct++ stx)
